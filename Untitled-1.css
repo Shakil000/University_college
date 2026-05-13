@@ -1,0 +1,1006 @@
+import { useState, useEffect } from "react";
+
+const GlobalStyles = () => (
+  <style>{`
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --g900: #0d2818;
+      --g800: #143520;
+      --g700: #1a4731;
+      --g600: #235c3f;
+      --g500: #2d7a52;
+      --gold: #c9a84c;
+      --gold-lt: #e8c97a;
+      --gold-pale: #f5e9c8;
+      --cream: #f8f4ed;
+      --cream-dk: #f0e9da;
+      --txt: #1a1a1a;
+      --txt-mid: #4a4a4a;
+      --txt-lt: #7a7a7a;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--txt);
+      overflow-x: hidden;
+    }
+
+    /* ─── NAVBAR ─── */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: #ffffff;
+      border-bottom: 1px solid #e2e8f0;
+      box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+      transition: box-shadow 0.3s;
+    }
+    .navbar.scrolled {
+      box-shadow: 0 2px 20px rgba(0,0,0,0.10);
+    }
+    .nav-inner {
+      max-width: 1280px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 68px; padding: 0 2rem; gap: 1rem;
+    }
+
+    /* Logo */
+    .logo-box {
+      width: 38px; height: 38px; background: var(--gold);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      border-radius: 6px;
+    }
+    .logo-g { font-family: 'Playfair Display', serif; font-weight: 900; font-size: 1.1rem; color: var(--g900); }
+    .logo-text { margin-left: 10px; }
+    .logo-name { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 0.92rem; color: var(--g900); line-height: 1.1; }
+    .logo-sub { font-size: 0.56rem; color: var(--g500); letter-spacing: 0.14em; text-transform: uppercase; }
+
+    /* Nav links */
+    .nav-links { display: flex; align-items: center; gap: 0.25rem; flex: 1; justify-content: center; }
+    .nav-link {
+      color: #334155; font-size: 0.88rem; font-weight: 500;
+      letter-spacing: 0.01em; cursor: pointer; text-decoration: none;
+      transition: color 0.2s, background 0.2s; background: none; border: none;
+      padding: 0.4rem 0.85rem; border-radius: 8px;
+      white-space: nowrap;
+    }
+    .nav-link:hover { color: var(--g900); background: #f1f5f9; }
+    .nav-link.active {
+      color: #1e293b; font-weight: 600;
+      background: #f1f5f9;
+    }
+
+    /* Right side */
+    .nav-right { display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0; }
+
+    /* Theme toggle */
+    .theme-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: none; background: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: #64748b; font-size: 1.1rem;
+      transition: background 0.2s, color 0.2s;
+    }
+    .theme-btn:hover { background: #f1f5f9; color: var(--g900); }
+
+    /* Apply Now btn */
+    .btn-apply {
+      background: #f5a623; color: #1a1a1a; border: none;
+      padding: 0.6rem 1.4rem; font-family: 'DM Sans', sans-serif;
+      font-weight: 700; font-size: 0.88rem; letter-spacing: 0.01em;
+      border-radius: 8px; cursor: pointer; transition: all 0.22s;
+      white-space: nowrap;
+    }
+    .btn-apply:hover { background: #e09918; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(245,166,35,0.4); }
+
+    /* ─── BUTTONS ─── */
+    .btn-gold {
+      background: var(--gold); color: var(--g900); border: none;
+      padding: 0.65rem 1.5rem; font-family: 'DM Sans', sans-serif;
+      font-weight: 600; font-size: 0.82rem; letter-spacing: 0.09em;
+      text-transform: uppercase; cursor: pointer; transition: all 0.25s;
+    }
+    .btn-gold:hover { background: var(--gold-lt); transform: translateY(-1px); box-shadow: 0 5px 22px rgba(201,168,76,0.45); }
+    .btn-outline-w {
+      background: transparent; color: #fff;
+      border: 1.5px solid rgba(255,255,255,0.45);
+      padding: 0.75rem 2rem; font-family: 'DM Sans', sans-serif;
+      font-weight: 500; font-size: 0.88rem; letter-spacing: 0.06em;
+      cursor: pointer; transition: all 0.25s;
+    }
+    .btn-outline-w:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-outline-g {
+      background: transparent; color: var(--g700);
+      border: 1.5px solid var(--g700);
+      padding: 0.65rem 1.5rem; font-family: 'DM Sans', sans-serif;
+      font-weight: 600; font-size: 0.78rem; letter-spacing: 0.09em;
+      text-transform: uppercase; cursor: pointer; transition: all 0.25s;
+    }
+    .btn-outline-g:hover { background: var(--g700); color: #fff; }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 100vh;
+      background: linear-gradient(140deg, #091e10 0%, #0d2818 30%, #1a4731 65%, #1e5438 100%);
+      position: relative; overflow: hidden; display: flex; align-items: center;
+    }
+    .hero-noise {
+      position: absolute; inset: 0; pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: 0.5;
+    }
+    .hero-radial {
+      position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 60% 80% at 80% 50%, rgba(201,168,76,0.10) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 60% at 10% 90%, rgba(13,40,24,0.9) 0%, transparent 60%);
+    }
+    .hero-grid-lines {
+      position: absolute; inset: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 64px 64px;
+    }
+    .hero-inner {
+      position: relative; z-index: 2;
+      max-width: 1200px; margin: 0 auto; padding: 7.5rem 2rem 4rem;
+      width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 3rem;
+    }
+    .hero-content { max-width: 640px; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 9px;
+      background: rgba(201,168,76,0.12); border: 1px solid rgba(201,168,76,0.28);
+      color: var(--gold-lt); padding: 6px 16px; font-size: 0.72rem;
+      letter-spacing: 0.16em; text-transform: uppercase; font-weight: 600;
+      margin-bottom: 1.6rem;
+      animation: fadeUp 0.7s 0.1s ease both;
+    }
+    .hero-h1 {
+      font-family: 'Playfair Display', serif; font-weight: 900;
+      font-size: clamp(2.6rem, 5.5vw, 4.8rem); color: #fff;
+      line-height: 1.08; margin-bottom: 1.5rem;
+      animation: fadeUp 0.7s 0.25s ease both;
+    }
+    .hero-h1 em { font-style: italic; color: var(--gold-lt); }
+    .hero-sub {
+      color: rgba(255,255,255,0.65); font-size: 1.05rem; line-height: 1.75;
+      font-weight: 300; margin-bottom: 2.5rem; max-width: 520px;
+      animation: fadeUp 0.7s 0.4s ease both;
+    }
+    .hero-btns {
+      display: flex; gap: 1rem; flex-wrap: wrap;
+      animation: fadeUp 0.7s 0.55s ease both;
+    }
+    .hero-divider {
+      width: 100%; height: 1px; background: rgba(255,255,255,0.1);
+      margin: 2.5rem 0 2rem;
+      animation: fadeUp 0.7s 0.65s ease both;
+    }
+    .hero-stats-row {
+      display: flex; gap: 2.5rem; flex-wrap: wrap;
+      animation: fadeUp 0.7s 0.75s ease both;
+    }
+    .h-stat-num {
+      font-family: 'Playfair Display', serif; font-size: 1.8rem;
+      font-weight: 700; color: var(--gold-lt); line-height: 1;
+    }
+    .h-stat-lbl {
+      font-size: 0.68rem; color: rgba(255,255,255,0.45);
+      letter-spacing: 0.11em; text-transform: uppercase; margin-top: 5px;
+    }
+    /* Hero emblem */
+    .hero-emblem {
+      flex-shrink: 0; position: relative;
+      animation: fadeUp 0.9s 0.5s ease both;
+    }
+    .ring-outer {
+      width: 380px; height: 380px; border-radius: 50%;
+      border: 1px solid rgba(201,168,76,0.16);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ring-inner {
+      width: 290px; height: 290px; border-radius: 50%;
+      border: 1px solid rgba(201,168,76,0.22);
+      background: rgba(201,168,76,0.05);
+      display: flex; align-items: center; justify-content: center;
+      text-align: center;
+    }
+    .emblem-gic {
+      font-family: 'Playfair Display', serif; font-size: 4.2rem;
+      font-weight: 900; color: var(--gold); line-height: 1;
+    }
+    .emblem-est { font-size: 0.6rem; color: rgba(255,255,255,0.35); letter-spacing: 0.22em; text-transform: uppercase; margin-top: 6px; }
+    .emblem-line { width: 36px; height: 1px; background: var(--gold); margin: 10px auto; }
+    .emblem-full { font-size: 0.6rem; color: rgba(255,255,255,0.35); letter-spacing: 0.14em; text-transform: uppercase; }
+
+    /* ─── STATS STRIP ─── */
+    .stats-strip { background: var(--g900); padding: 3.5rem 0; }
+    .stats-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 2rem;
+      display: grid; grid-template-columns: repeat(4,1fr); gap: 1.5rem; text-align: center;
+    }
+    .st-num {
+      font-family: 'Playfair Display', serif; font-size: 2.8rem;
+      font-weight: 900; color: var(--gold); line-height: 1;
+    }
+    .st-lbl {
+      font-size: 0.72rem; color: rgba(255,255,255,0.5);
+      letter-spacing: 0.13em; text-transform: uppercase; margin-top: 7px;
+    }
+
+    /* ─── SECTIONS ─── */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+    .section { padding: 6rem 0; }
+
+    .sec-tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--g600); margin-bottom: 0.9rem;
+    }
+    .sec-tag::before {
+      content: ''; display: block; width: 22px; height: 2px; background: var(--gold);
+    }
+    .sec-tag.light { color: var(--gold); }
+    .sec-tag.light::before { background: var(--gold); }
+    .sec-h2 {
+      font-family: 'Playfair Display', serif; font-weight: 700;
+      font-size: clamp(1.8rem, 3.2vw, 2.7rem); color: var(--g900); line-height: 1.18;
+    }
+    .sec-h2 em { font-style: italic; color: var(--g600); }
+    .sec-h2.light { color: #fff; }
+    .sec-h2.light em { color: var(--gold-lt); }
+    .gold-bar { width: 52px; height: 3px; background: var(--gold); margin: 1rem 0; }
+    .sec-body { color: var(--txt-mid); line-height: 1.75; font-size: 0.95rem; }
+
+    /* ─── PROGRAMS ─── */
+    .programs-bg { background: var(--cream); }
+    .prog-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem; margin-top: 3rem;
+    }
+    .prog-card {
+      background: #fff; border: 1px solid #e8e0d0;
+      padding: 2rem; transition: all 0.3s ease;
+      cursor: pointer; position: relative; overflow: hidden;
+    }
+    .prog-card::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+      height: 3px; background: var(--gold);
+      transform: scaleX(0); transform-origin: left; transition: transform 0.3s;
+    }
+    .prog-card:hover { transform: translateY(-5px); box-shadow: 0 14px 44px rgba(13,40,24,0.12); border-color: var(--gold-pale); }
+    .prog-card:hover::after { transform: scaleX(1); }
+    .prog-icon {
+      width: 50px; height: 50px; background: var(--cream);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; margin-bottom: 1.25rem;
+    }
+    .prog-name {
+      font-family: 'Playfair Display', serif; font-size: 1.1rem;
+      font-weight: 700; color: var(--g900); margin-bottom: 0.55rem;
+    }
+    .prog-desc { font-size: 0.87rem; color: var(--txt-mid); line-height: 1.65; margin-bottom: 1rem; }
+    .prog-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 1rem; }
+    .prog-tag {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--g500);
+      background: rgba(45,122,82,0.08); padding: 3px 9px;
+    }
+    .prog-footer { display: flex; align-items: center; justify-content: space-between; }
+    .prog-students { font-size: 0.75rem; color: var(--txt-lt); }
+    .prog-link { font-size: 0.78rem; color: var(--g600); font-weight: 600; cursor: pointer; transition: color 0.2s; }
+    .prog-link:hover { color: var(--gold); }
+
+    /* ─── WHY US ─── */
+    .whyus-bg { background: var(--cream-dk); }
+    .whyus-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start;
+    }
+    .feat-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+    }
+    .feat-card {
+      padding: 1.75rem; border-left: 3px solid var(--gold); background: #fff;
+      transition: all 0.3s;
+    }
+    .feat-card:hover { background: var(--g900); }
+    .feat-card:hover .feat-title { color: var(--gold-lt); }
+    .feat-card:hover .feat-body { color: rgba(255,255,255,0.65); }
+    .feat-icon { font-size: 1.4rem; margin-bottom: 0.7rem; }
+    .feat-title {
+      font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700;
+      color: var(--g900); margin-bottom: 0.45rem; transition: color 0.3s;
+    }
+    .feat-body { font-size: 0.83rem; color: var(--txt-mid); line-height: 1.6; transition: color 0.3s; }
+
+    /* ─── ADMISSIONS ─── */
+    .admissions-bg { background: var(--g900); }
+    .steps-grid {
+      display: grid; grid-template-columns: repeat(4,1fr); gap: 2.5rem;
+      margin-top: 3.5rem;
+    }
+    .step-num-big {
+      font-family: 'Playfair Display', serif; font-size: 3.8rem;
+      font-weight: 900; color: rgba(201,168,76,0.22); line-height: 1; margin-bottom: 0.4rem;
+    }
+    .step-bar { width: 36px; height: 2px; background: var(--gold); margin-bottom: 0.9rem; }
+    .step-title {
+      font-family: 'Playfair Display', serif; font-size: 1.05rem;
+      font-weight: 700; color: #fff; margin-bottom: 0.5rem;
+    }
+    .step-body { font-size: 0.85rem; color: rgba(255,255,255,0.55); line-height: 1.65; }
+    .admissions-cta { text-align: center; margin-top: 4rem; }
+    .admissions-note { font-size: 0.75rem; color: rgba(255,255,255,0.35); margin-top: 1rem; }
+
+    /* ─── TESTIMONIALS ─── */
+    .testi-bg { background: var(--cream); }
+    .testi-grid {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 2rem; margin-top: 3rem;
+    }
+    .testi-card {
+      background: #fff; border: 1px solid #e8e0d0;
+      padding: 2rem; position: relative;
+    }
+    .testi-quote {
+      font-family: 'Playfair Display', serif; font-size: 5rem;
+      color: var(--gold-pale); position: absolute; top: -0.6rem; left: 1.5rem; line-height: 1;
+      pointer-events: none;
+    }
+    .testi-text {
+      font-size: 0.9rem; line-height: 1.72; color: var(--txt-mid);
+      font-style: italic; margin-bottom: 1.5rem; padding-top: 1.75rem;
+    }
+    .testi-avatar {
+      width: 44px; height: 44px; border-radius: 50%; background: var(--g700);
+      display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;
+    }
+    .testi-name { font-weight: 600; font-size: 0.875rem; color: var(--g900); }
+    .testi-prog { font-size: 0.7rem; color: var(--gold); letter-spacing: 0.09em; text-transform: uppercase; margin-top: 2px; }
+
+    /* ─── NEWS ─── */
+    .news-bg { background: var(--cream-dk); }
+    .news-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 3rem; flex-wrap: wrap; gap: 1rem; }
+    .news-grid {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 2rem;
+    }
+    .news-card {
+      background: #fff; border: 1px solid #e8e0d0;
+      overflow: hidden; transition: all 0.3s;
+    }
+    .news-card:hover { transform: translateY(-5px); box-shadow: 0 14px 44px rgba(0,0,0,0.1); }
+    .news-thumb {
+      height: 190px; display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+    }
+    .news-thumb-gic {
+      font-family: 'Playfair Display', serif; font-size: 5rem;
+      font-weight: 900; color: rgba(255,255,255,0.12);
+    }
+    .news-label {
+      position: absolute; top: 1rem; left: 1rem;
+      background: var(--gold); padding: 3px 10px;
+      font-size: 0.62rem; font-weight: 800; letter-spacing: 0.11em; color: var(--g900);
+    }
+    .news-body { padding: 1.5rem; }
+    .news-date { font-size: 0.68rem; color: var(--gold); letter-spacing: 0.15em; text-transform: uppercase; font-weight: 700; margin-bottom: 0.5rem; }
+    .news-title {
+      font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700;
+      color: var(--g900); margin-bottom: 0.75rem; line-height: 1.4;
+    }
+    .news-more { font-size: 0.78rem; color: var(--g600); font-weight: 600; cursor: pointer; transition: color 0.2s; }
+    .news-more:hover { color: var(--gold); }
+
+    /* ─── CTA BANNER ─── */
+    .cta-bg {
+      background: var(--g900); position: relative; overflow: hidden; padding: 6rem 0;
+    }
+    .cta-glow {
+      position: absolute; top: -40%; right: -15%;
+      width: 600px; height: 600px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(201,168,76,0.1) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .cta-inner { position: relative; z-index: 1; text-align: center; }
+    .cta-kicker {
+      font-size: 0.68rem; color: var(--gold); letter-spacing: 0.22em;
+      text-transform: uppercase; font-weight: 700; margin-bottom: 1.25rem;
+    }
+    .cta-h2 {
+      font-family: 'Playfair Display', serif; font-weight: 900;
+      font-size: clamp(2rem, 4vw, 3.4rem); color: #fff;
+      line-height: 1.18; margin-bottom: 1rem;
+    }
+    .cta-h2 em { font-style: italic; color: var(--gold-lt); }
+    .cta-sub { color: rgba(255,255,255,0.55); max-width: 480px; margin: 0 auto 2.5rem; line-height: 1.72; }
+    .cta-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+    /* ─── FOOTER ─── */
+    .footer-bg { background: #060e08; color: rgba(255,255,255,0.62); }
+    .footer-inner { max-width: 1200px; margin: 0 auto; padding: 4.5rem 2rem 2rem; }
+    .footer-grid {
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; margin-bottom: 3rem;
+    }
+    .footer-about { max-width: 300px; }
+    .footer-logo-row { display: flex; align-items: center; gap: 12px; margin-bottom: 1.25rem; }
+    .footer-desc { font-size: 0.83rem; line-height: 1.72; margin-bottom: 1.25rem; }
+    .footer-socials { display: flex; gap: 8px; }
+    .social-box {
+      width: 32px; height: 32px;
+      border: 1px solid rgba(255,255,255,0.14);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.65rem; color: rgba(255,255,255,0.45); cursor: pointer;
+      letter-spacing: 0.04em; transition: all 0.2s;
+    }
+    .social-box:hover { border-color: var(--gold); color: var(--gold-lt); }
+    .footer-col-title {
+      font-family: 'Playfair Display', serif; font-size: 0.85rem; font-weight: 700;
+      color: #fff; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 1.1rem;
+    }
+    .footer-link {
+      color: rgba(255,255,255,0.5); text-decoration: none; font-size: 0.85rem;
+      display: block; margin-bottom: 0.55rem; cursor: pointer; transition: color 0.2s;
+    }
+    .footer-link:hover { color: var(--gold-lt); }
+    .footer-contact-item { font-size: 0.83rem; line-height: 1.6; margin-bottom: 0.55rem; }
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,0.07);
+      padding-top: 1.5rem;
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+    }
+    .footer-copy { font-size: 0.72rem; color: rgba(255,255,255,0.28); }
+    .footer-legal { display: flex; gap: 1.5rem; }
+    .footer-legal a {
+      font-size: 0.72rem; color: rgba(255,255,255,0.28); cursor: pointer;
+      text-decoration: none; transition: color 0.2s;
+    }
+    .footer-legal a:hover { color: var(--gold-lt); }
+
+    /* ─── MOBILE MENU ─── */
+    .mob-menu {
+      position: fixed; inset: 0; background: var(--g900); z-index: 999;
+      display: flex; flex-direction: column; padding: 2rem;
+      transform: translateX(-100%); transition: transform 0.32s ease;
+    }
+    .mob-menu.open { transform: translateX(0); }
+    .mob-menu-link {
+      font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700;
+      color: #fff; display: block; margin-bottom: 1.25rem; cursor: pointer;
+      border: none; background: none; text-align: left; transition: color 0.2s;
+    }
+    .mob-menu-link:hover { color: var(--gold-lt); }
+
+    /* ─── ANIMATIONS ─── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 1024px) {
+      .stats-grid { grid-template-columns: repeat(2,1fr); }
+      .whyus-grid { grid-template-columns: 1fr; gap: 3rem; }
+      .steps-grid { grid-template-columns: repeat(2,1fr); }
+      .testi-grid { grid-template-columns: repeat(2,1fr); }
+      .news-grid { grid-template-columns: repeat(2,1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 768px) {
+      .nav-links, .nav-right { display: none; }
+      .hamburger { display: flex !important; }
+      .hero-emblem { display: none; }
+      .stats-grid { grid-template-columns: repeat(2,1fr); }
+      .prog-grid { grid-template-columns: 1fr; }
+      .feat-grid { grid-template-columns: 1fr; }
+      .steps-grid { grid-template-columns: 1fr; }
+      .testi-grid { grid-template-columns: 1fr; }
+      .news-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .hero-stats-row { gap: 1.5rem; }
+      .nav-inner { padding: 0 1.25rem; }
+    }
+  `}</style>
+);
+
+/* ─── DATA ─── */
+const PROGRAMS = [
+  { icon: "💻", name: "Computer Science", tags: ["BSc", "MSc", "PhD"], desc: "From AI and machine learning to cybersecurity and software engineering — build the digital future.", students: "2,400+" },
+  { icon: "📈", name: "Business & Management", tags: ["BBA", "MBA", "Diploma"], desc: "Develop strategic thinking, global business acumen, and entrepreneurial leadership skills.", students: "3,100+" },
+  { icon: "⚙️", name: "Engineering", tags: ["BEng", "MEng", "Diploma"], desc: "Civil, mechanical, electrical, and chemical engineering programs with hands-on lab experience.", students: "1,800+" },
+  { icon: "🏥", name: "Medicine & Health Sciences", tags: ["MBBS", "BPharm", "MNurs"], desc: "World-class medical education with clinical placements in partner hospitals across the globe.", students: "1,200+" },
+  { icon: "🎨", name: "Arts & Humanities", tags: ["BA", "MA", "MFA"], desc: "Explore literature, philosophy, history, fine arts, and media studies in a vibrant creative environment.", students: "980+" },
+  { icon: "⚖️", name: "Law & Justice", tags: ["LLB", "LLM", "Diploma"], desc: "Train in international, corporate, and human rights law with moot court and internship programs.", students: "760+" },
+];
+
+const STATS = [
+  { num: "25,000+", lbl: "Students Enrolled" },
+  { num: "120+",    lbl: "Programs Offered" },
+  { num: "85+",     lbl: "Countries Represented" },
+  { num: "98%",     lbl: "Graduate Employability" },
+];
+
+const FEATURES = [
+  { icon: "🌍", title: "Globally Recognized Degrees",   body: "Our qualifications are recognized by 200+ universities and employers across 60+ countries." },
+  { icon: "🔬", title: "Research-Led Teaching",         body: "Learn from active researchers publishing in world-leading journals — theory meets practice." },
+  { icon: "🤝", title: "Industry Partnerships",         body: "500+ corporate partners offer internships, live projects, and fast-track graduate recruitment." },
+  { icon: "🏆", title: "Scholarship Opportunities",     body: "Over $8 million in scholarships awarded annually to international and domestic students." },
+  { icon: "🖥️", title: "Online & Hybrid Learning",      body: "State-of-the-art digital campus allows full degree completion online without sacrificing quality." },
+  { icon: "🌱", title: "Student Support Services",      body: "From career counseling to mental wellness, our support network is with you every step of the way." },
+];
+
+const TESTIMONIALS = [
+  { text: "Greenfield opened doors I never imagined possible. The faculty here aren't just teachers — they're mentors who genuinely invest in your success.", name: "Priya Sharma",   prog: "MSc Computer Science, 2024", flag: "🇮🇳" },
+  { text: "The global network and real-world projects gave me an edge in the job market. I had three offers before I even graduated.", name: "James Okonkwo",  prog: "MBA Business, 2023",         flag: "🇳🇬" },
+  { text: "Studying Medicine at Greenfield was transformative. The clinical experience in the second year is unlike anything I could have gotten elsewhere.", name: "Sofia Mendes",   prog: "MBBS Medicine, 2024",        flag: "🇧🇷" },
+];
+
+const NEWS = [
+  { date: "May 2, 2025",  title: "Greenfield Ranked #12 Globally for Research Output",            color: "#143520", label: "ACHIEVEMENT" },
+  { date: "Apr 18, 2025", title: "New Engineering Innovation Lab Inaugurated with £5M Investment", color: "#1a4731", label: "CAMPUS" },
+  { date: "Apr 5, 2025",  title: "Applications Open for 2025–26 International Scholarship Program", color: "#235c3f", label: "ADMISSIONS" },
+];
+
+const STEPS = [
+  { n: "01", title: "Choose Your Program", body: "Browse 120+ undergraduate, postgraduate, diploma, and online programs across six faculties." },
+  { n: "02", title: "Submit Application",  body: "Complete the online application and upload supporting documents in under 20 minutes." },
+  { n: "03", title: "Receive Decision",    body: "Our admissions team reviews every application personally and responds within 10 working days." },
+  { n: "04", title: "Enroll & Begin",      body: "Accept your offer, complete enrollment, and join the Greenfield community worldwide." },
+];
+
+const NAV_ITEMS = ["Home", "About", "Programs", "Admissions", "Faculty", "Gallery", "News", "Portal", "Contact"];
+
+/* ─── SUN ICON SVG ─── */
+function SunIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="5"/>
+      <line x1="12" y1="1" x2="12" y2="3"/>
+      <line x1="12" y1="21" x2="12" y2="23"/>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+      <line x1="1" y1="12" x2="3" y2="12"/>
+      <line x1="21" y1="12" x2="23" y2="12"/>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+    </svg>
+  );
+}
+
+/* ─── NAVBAR ─── */
+function Navbar({ scrolled }) {
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState("Home");
+
+  return (
+    <>
+      <nav className={`navbar ${scrolled ? "scrolled" : ""}`}>
+        <div className="nav-inner">
+
+          {/* Logo */}
+          <div style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
+            <div className="logo-box"><span className="logo-g">G</span></div>
+            <div className="logo-text">
+              <div className="logo-name">Greenfield</div>
+              <div className="logo-sub">International College</div>
+            </div>
+          </div>
+
+          {/* Desktop Nav Links */}
+          <div className="nav-links">
+            {NAV_ITEMS.map(item => (
+              <button
+                key={item}
+                className={`nav-link${active === item ? " active" : ""}`}
+                onClick={() => setActive(item)}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+
+          {/* Right side: theme toggle + Apply Now */}
+          <div className="nav-right">
+            <button className="theme-btn" title="Toggle theme">
+              <SunIcon />
+            </button>
+            <button className="btn-apply">Apply Now</button>
+          </div>
+
+          {/* Hamburger (mobile) */}
+          <button
+            onClick={() => setOpen(true)}
+            style={{
+              display: "none", flexDirection: "column", gap: 5,
+              background: "none", border: "none", cursor: "pointer", padding: 4
+            }}
+            className="hamburger"
+          >
+            {[0,1,2].map(i => (
+              <span key={i} style={{ width: 22, height: 2, background: "#334155", display: "block", borderRadius: 2 }} />
+            ))}
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile Drawer */}
+      <div className={`mob-menu ${open ? "open" : ""}`}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <div className="logo-box"><span className="logo-g">G</span></div>
+            <div className="logo-text">
+              <div style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: "0.92rem", color: "#fff" }}>Greenfield</div>
+            </div>
+          </div>
+          <button onClick={() => setOpen(false)} style={{ background: "none", border: "none", color: "#fff", fontSize: "1.6rem", cursor: "pointer", lineHeight: 1 }}>✕</button>
+        </div>
+        {NAV_ITEMS.map(item => (
+          <button
+            key={item}
+            className="mob-menu-link"
+            onClick={() => { setActive(item); setOpen(false); }}
+            style={{ color: active === item ? "var(--gold-lt)" : "#fff" }}
+          >
+            {item}
+          </button>
+        ))}
+        <button className="btn-apply" style={{ marginTop: "2rem", padding: "1rem", width: "100%", fontSize: "0.92rem", borderRadius: 8 }}>
+          Apply Now
+        </button>
+      </div>
+    </>
+  );
+}
+
+/* ─── HERO ─── */
+function Hero() {
+  return (
+    <section className="hero" id="home">
+      <div className="hero-noise" />
+      <div className="hero-radial" />
+      <div className="hero-grid-lines" />
+
+      <div className="hero-inner">
+        <div className="hero-content">
+          <div className="hero-badge">
+            <span>★</span>
+            <span>Ranked Among World's Top 50 Universities 2025</span>
+          </div>
+
+          <h1 className="hero-h1">
+            Empowering the<br />
+            <em>Future Leaders</em><br />
+            of Tomorrow
+          </h1>
+
+          <p className="hero-sub">
+            A modern, globally recognized college offering undergraduate, postgraduate, diploma & online programs in Computer Science, Business, Engineering, Medicine, Arts & Law.
+          </p>
+
+          <div className="hero-btns">
+            <button className="btn-gold" style={{ padding: "0.875rem 2rem", fontSize: "0.88rem" }}>Explore Programs</button>
+            <button className="btn-outline-w">Book a Campus Tour</button>
+          </div>
+
+          <div className="hero-divider" />
+
+          <div className="hero-stats-row">
+            {STATS.map(s => (
+              <div key={s.lbl}>
+                <div className="h-stat-num">{s.num}</div>
+                <div className="h-stat-lbl">{s.lbl}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Emblem */}
+        <div className="hero-emblem">
+          <div className="ring-outer">
+            <div className="ring-inner">
+              <div>
+                <div className="emblem-gic">GIC</div>
+                <div className="emblem-est">Est. 1978</div>
+                <div className="emblem-line" />
+                <div className="emblem-full">Greenfield International College</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── STATS STRIP ─── */
+function StatsStrip() {
+  return (
+    <section className="stats-strip">
+      <div className="stats-grid">
+        {STATS.map(s => (
+          <div key={s.lbl} style={{ textAlign: "center" }}>
+            <div className="st-num">{s.num}</div>
+            <div className="st-lbl">{s.lbl}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ─── PROGRAMS ─── */
+function Programs() {
+  return (
+    <section className="section programs-bg" id="programs">
+      <div className="container">
+        <div style={{ maxWidth: 600, marginBottom: "0.5rem" }}>
+          <div className="sec-tag">Academic Excellence</div>
+          <h2 className="sec-h2">Programs Designed<br />for <em>Real-World Impact</em></h2>
+          <div className="gold-bar" />
+          <p className="sec-body" style={{ marginTop: "0.5rem" }}>
+            120+ programs across six faculties, taught by world-class faculty and shaped by cutting-edge research and industry demand.
+          </p>
+        </div>
+
+        <div className="prog-grid">
+          {PROGRAMS.map(p => (
+            <div key={p.name} className="prog-card">
+              <div className="prog-icon">{p.icon}</div>
+              <div className="prog-name">{p.name}</div>
+              <p className="prog-desc">{p.desc}</p>
+              <div className="prog-tags">
+                {p.tags.map(t => <span key={t} className="prog-tag">{t}</span>)}
+              </div>
+              <div className="prog-footer">
+                <span className="prog-students">{p.students} students</span>
+                <span className="prog-link">Learn more →</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ textAlign: "center", marginTop: "3rem" }}>
+          <button className="btn-gold" style={{ padding: "0.875rem 2.5rem" }}>View All 120+ Programs</button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── WHY US ─── */
+function WhyUs() {
+  return (
+    <section className="section whyus-bg" id="about">
+      <div className="container">
+        <div className="whyus-grid">
+          <div>
+            <div className="sec-tag">Why Greenfield</div>
+            <h2 className="sec-h2">A World-Class Education,<br /><em>Built Around You</em></h2>
+            <div className="gold-bar" />
+            <p className="sec-body" style={{ marginBottom: "1.25rem" }}>
+              Since 1978, Greenfield International College has been at the forefront of higher education — blending academic rigour with real-world relevance to prepare graduates for leadership in a rapidly changing world.
+            </p>
+            <p className="sec-body" style={{ marginBottom: "2rem" }}>
+              Our diverse community of 25,000+ students from 85+ countries creates a truly international learning environment. With state-of-the-art facilities, renowned faculty, and a culture of innovation, we equip you with the knowledge, skills, and connections to succeed.
+            </p>
+            <button className="btn-gold" style={{ padding: "0.875rem 2rem" }}>About Greenfield</button>
+          </div>
+
+          <div className="feat-grid">
+            {FEATURES.map(f => (
+              <div key={f.title} className="feat-card">
+                <div className="feat-icon">{f.icon}</div>
+                <div className="feat-title">{f.title}</div>
+                <p className="feat-body">{f.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── ADMISSIONS ─── */
+function Admissions() {
+  return (
+    <section className="section admissions-bg" id="admissions">
+      <div className="container">
+        <div style={{ textAlign: "center", maxWidth: 580, margin: "0 auto" }}>
+          <div className="sec-tag light" style={{ justifyContent: "center" }}>How to Apply</div>
+          <h2 className="sec-h2 light">Your Journey Starts<br /><em>in Four Steps</em></h2>
+        </div>
+
+        <div className="steps-grid">
+          {STEPS.map(s => (
+            <div key={s.n}>
+              <div className="step-num-big">{s.n}</div>
+              <div className="step-bar" />
+              <div className="step-title">{s.title}</div>
+              <p className="step-body">{s.body}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="admissions-cta">
+          <button className="btn-gold" style={{ padding: "1rem 3rem", fontSize: "0.92rem" }}>Start Your Application</button>
+          <p className="admissions-note">Applications for 2025–26 are now open. Deadline: August 31, 2025.</p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── TESTIMONIALS ─── */
+function Testimonials() {
+  return (
+    <section className="section testi-bg">
+      <div className="container">
+        <div style={{ textAlign: "center", marginBottom: "0.5rem" }}>
+          <div className="sec-tag" style={{ justifyContent: "center" }}>Student Stories</div>
+          <h2 className="sec-h2">Voices from Our <em>Global Community</em></h2>
+        </div>
+
+        <div className="testi-grid">
+          {TESTIMONIALS.map(t => (
+            <div key={t.name} className="testi-card">
+              <div className="testi-quote">"</div>
+              <p className="testi-text">{t.text}</p>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div className="testi-avatar">{t.flag}</div>
+                <div>
+                  <div className="testi-name">{t.name}</div>
+                  <div className="testi-prog">{t.prog}</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── NEWS ─── */
+function News() {
+  return (
+    <section className="section news-bg">
+      <div className="container">
+        <div className="news-header">
+          <div>
+            <div className="sec-tag">Latest News</div>
+            <h2 className="sec-h2">News & <em>Events</em></h2>
+          </div>
+          <button className="btn-outline-g">View All News</button>
+        </div>
+
+        <div className="news-grid">
+          {NEWS.map(n => (
+            <div key={n.title} className="news-card">
+              <div className="news-thumb" style={{ background: n.color }}>
+                <span className="news-thumb-gic">GIC</span>
+                <div className="news-label">{n.label}</div>
+              </div>
+              <div className="news-body">
+                <div className="news-date">{n.date}</div>
+                <div className="news-title">{n.title}</div>
+                <span className="news-more">Read More →</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── CTA BANNER ─── */
+function CTABanner() {
+  return (
+    <section className="cta-bg">
+      <div className="cta-glow" />
+      <div className="container">
+        <div className="cta-inner">
+          <p className="cta-kicker">★ &nbsp; Begin Your Journey &nbsp; ★</p>
+          <h2 className="cta-h2">Ready to Shape Your<br /><em>Future at Greenfield?</em></h2>
+          <p className="cta-sub">
+            Join 25,000+ students from 85 countries and take the first step toward a world-class education and a brilliant career.
+          </p>
+          <div className="cta-btns">
+            <button className="btn-gold" style={{ padding: "1rem 2.5rem", fontSize: "0.92rem" }}>Apply for 2025–26</button>
+            <button className="btn-outline-w">Download Prospectus</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── FOOTER ─── */
+function Footer() {
+  return (
+    <footer className="footer-bg">
+      <div className="footer-inner">
+        <div className="footer-grid">
+          {/* Brand */}
+          <div className="footer-about">
+            <div className="footer-logo-row">
+              <div className="logo-box"><span className="logo-g">G</span></div>
+              <div className="logo-text">
+                <div className="logo-name">Greenfield International College</div>
+              </div>
+            </div>
+            <p className="footer-desc">
+              Empowering future leaders since 1978. A globally recognized institution committed to academic excellence, research, and innovation.
+            </p>
+            <div className="footer-socials">
+              {["in", "tw", "fb", "yt"].map(s => <div key={s} className="social-box">{s}</div>)}
+            </div>
+          </div>
+
+          {/* Academics */}
+          <div>
+            <div className="footer-col-title">Academics</div>
+            {["Undergraduate", "Postgraduate", "Diploma Programs", "Online Learning", "Research Programs"].map(l => (
+              <a key={l} className="footer-link">{l}</a>
+            ))}
+          </div>
+
+          {/* Campus */}
+          <div>
+            <div className="footer-col-title">Campus</div>
+            {["About Greenfield", "Campus Life", "Student Services", "Library & Resources", "Sports & Wellness"].map(l => (
+              <a key={l} className="footer-link">{l}</a>
+            ))}
+          </div>
+
+          {/* Contact */}
+          <div>
+            <div className="footer-col-title">Contact Us</div>
+            <p className="footer-contact-item">1 Greenfield Avenue,<br />London, UK, GF1 2IC</p>
+            <p className="footer-contact-item">📞 +44 20 7946 0000</p>
+            <p className="footer-contact-item" style={{ marginBottom: "1.25rem" }}>✉️ admissions@greenfield.edu</p>
+            <button className="btn-gold" style={{ width: "100%", padding: "0.65rem" }}>Apply Now</button>
+          </div>
+        </div>
+
+        <div className="footer-bottom">
+          <p className="footer-copy">© 2025 Greenfield International College. All rights reserved.</p>
+          <div className="footer-legal">
+            {["Privacy Policy", "Terms of Use", "Cookie Settings"].map(l => <a key={l}>{l}</a>)}
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+/* ─── APP ─── */
+export default function App() {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 60);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return (
+    <>
+      <GlobalStyles />
+      <Navbar scrolled={scrolled} />
+      <Hero />
+      <StatsStrip />
+      <Programs />
+      <WhyUs />
+      <Admissions />
+      <Testimonials />
+      <News />
+      <CTABanner />
+      <Footer />
+    </>
+  );
+}
